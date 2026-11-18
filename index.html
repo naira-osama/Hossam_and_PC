@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لعبة حسام والكمبيوتر 💻</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .game-box {
+      background: #ffffff;
+      width: 100%;
+      max-width: 540px;
+      border-radius: 30px;
+      padding: 25px 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      border: 5px solid #ffd166;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff8e7;
+      padding: 10px 16px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+      border: 2px dashed #ffb703;
+    }
+
+    .badge {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .stars {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #f77f00;
+    }
+
+    .avatar {
+      font-size: 4.5rem;
+      margin: 5px 0;
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+
+    .bounce {
+      animation: bounce 0.5s ease;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+    }
+
+    h1 {
+      color: #0077b6;
+      font-size: 1.8rem;
+      margin: 8px 0;
+    }
+
+    p.subtitle {
+      color: #555;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .card-display {
+      background: #f0f9ff;
+      border: 3px solid #90e0ef;
+      border-radius: 24px;
+      padding: 20px 15px;
+      margin-bottom: 20px;
+    }
+
+    .card-emoji {
+      font-size: 3.6rem;
+      margin-bottom: 10px;
+    }
+
+    .card-text {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #1d3557;
+      line-height: 1.5;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 20px;
+      padding: 14px 20px;
+      font-size: 1.25rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.15);
+    }
+
+    button:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+    }
+
+    button:disabled {
+      opacity: 0.75;
+      cursor: default;
+    }
+
+    .btn-start {
+      background: #06d6a0;
+      color: #fff;
+      font-size: 1.4rem;
+      width: 100%;
+    }
+
+    .btn-good {
+      background: #06d6a0;
+      color: #fff;
+      flex: 1;
+    }
+
+    .btn-bad {
+      background: #ef476f;
+      color: #fff;
+      flex: 1;
+    }
+
+    .btn-option {
+      background: #ffd166;
+      color: #2b2d42;
+      width: 100%;
+    }
+
+    .btn-option.correct {
+      background: #06d6a0 !important;
+      color: #fff !important;
+    }
+
+    .btn-option.wrong {
+      background: #ef476f !important;
+      color: #fff !important;
+    }
+
+    .feedback {
+      min-height: 32px;
+      margin-top: 14px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: #eee;
+      border-radius: 10px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #06d6a0, #118ab2);
+      transition: width 0.3s ease;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .confetti {
+      position: absolute;
+      font-size: 1.6rem;
+      animation: fall 2.5s linear forwards;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(520px) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-box" id="gameBox">
+    <!-- شاشة البداية -->
+    <div id="startScreen">
+      <div class="avatar">👦💻</div>
+      <h1>حُسَامٌ وَالْكُمْبِيُوتَرُ</h1>
+      <p class="subtitle">
+        أَهْلًا يَا بَطَل! سَاعِدْ حُسَامًا فِي تَنْظِيمِ وَقْتِهِ وَالْحِفَاظِ عَلَى صِحَّتِهِ، وَاكْسَبْ كُلَّ النُّجُوم! 🌟
+      </p>
+      <button class="btn-start" onclick="startGame()">ابْدَأ اللَّعِبَ الْآن 🚀</button>
+    </div>
+
+    <!-- شاشة اللعب -->
+    <div id="playScreen" class="hidden">
+      <div class="header">
+        <span class="badge" id="stageLabel">المرحلة ١: عادات حسام</span>
+        <span class="stars">⭐ <span id="scoreText">0</span> / 12</span>
+      </div>
+
+      <div class="avatar" id="hossamFace">😊</div>
+
+      <div class="card-display">
+        <div class="card-emoji" id="cardEmoji">⚽</div>
+        <div class="card-text" id="cardText">اللَّعِبُ مَعَ الْأَصْحَابِ وَمُمَارَسَةُ الرِّيَاضَةِ</div>
+      </div>
+
+      <!-- أزرار المرحلة الأولى -->
+      <div class="btn-row" id="stage1Controls">
+        <button class="btn-good" onclick="answerStage1(true)">مُفِيدٌ لِصِحَّتِهِ 👍</button>
+        <button class="btn-bad" onclick="answerStage1(false)">يَضُرُّ صِحَّتَهُ 👎</button>
+      </div>
+
+      <!-- أزرار المرحلة الثانية -->
+      <div class="btn-group hidden" id="stage2Controls"></div>
+
+      <div class="feedback" id="feedbackText"></div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- شاشة النهاية -->
+    <div id="endScreen" class="hidden">
+      <div class="avatar">🏆🥳</div>
+      <h1 id="endTitle">أَحْسَنْتَ يَا بَطَل!</h1>
+      <p class="subtitle" id="endMessage"></p>
+      <button class="btn-start" onclick="startGame()">الْعَبْ مَرَّةً أُخْرَى 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    const stage1Data = [
+      { emoji: "💻👀", text: "الْجُلُوسُ فَتْرَةً طَوِيلَةً أَمَامَ الشَّاشَةِ", good: false },
+      { emoji: "⚽🏃", text: "اللَّعِبُ مَعَ الْأَصْحَابِ وَمُمَارَسَةُ الرِّيَاضَةِ", good: true },
+      { emoji: "📖🤲", text: "تَحْدِيدُ وَقْتٍ لِلْمُذَاكَرَةِ وَالصَّلَاةِ", good: true },
+      { emoji: "🦉📱", text: "السَّهَرُ وَتَقْلِيلُ فَتَرَاتِ النَّوْمِ اللَّازِمَةِ", good: false },
+      { emoji: "⏱️🎮", text: "تَحْدِيدُ وَقْتٍ قَصِيرٍ لِلْأَلْعَابِ الْإِلِكْتْرُونِيَّةِ", good: true },
+      { emoji: "🛋️😑", text: "قِلَّةُ الْحَرَكَةِ وَالْجُلُوسُ دُونَ نَشَاطٍ", good: false }
+    ];
+
+    const stage2Data = [
+      {
+        emoji: "😣",
+        text: "مَا مَعْنَى كَلِمَةِ (مُتَأَلِّمًا)؟",
+        options: ["مُتَوَجِّعًا", "سَعِيدًا", "نَائِمًا"],
+        correct: 0
+      },
+      {
+        emoji: "⚖️",
+        text: "مَا مَعْنَى كَلِمَةِ (يُوَزِّعُ)؟",
+        options: ["يُضَيِّعُ", "يُقَسِّمُ", "يَتْرُكُ"],
+        correct: 1
+      },
+      {
+        emoji: "🛡️",
+        text: "مَا مُضَادُّ كَلِمَةِ (يُؤْذِي)؟",
+        options: ["يَضُرُّ", "يُلْعَبُ", "يَنْفَعُ"],
+        correct: 2
+      },
+      {
+        emoji: "⏰",
+        text: "مَا جَمْعُ كَلِمَةِ (وَقْت)؟",
+        options: ["أَوْقَات", "مَوَاقِت", "وَقْتَان"],
+        correct: 0
+      },
+      {
+        emoji: "🤸",
+        text: "مَا مُفْرَدُ كَلِمَةِ (الْأَنْشِطَة)؟",
+        options: ["النَّشِيط", "النَّشَاط", "الْمُنْشِط"],
+        correct: 1
+      },
+      {
+        emoji: "👁️",
+        text: "لِمَاذَا شَعَرَ حُسَامٌ بِأَلَمٍ فِي عَيْنِهِ؟",
+        options: ["لِأَنَّهُ يَجْلِسُ طَوِيلًا أَمَامَ الْكُمْبِيُوتَرِ", "لِأَنَّهُ يُمَارِسُ الرِّيَاضَةَ", "لِأَنَّهُ يُذَاكِرُ دُرُوسَهُ"],
+        correct: 0
+      }
+    ];
+
+    let currentStep = 0;
+    let score = 0;
+    const totalSteps = stage1Data.length + stage2Data.length;
+
+    function startGame() {
+      currentStep = 0;
+      score = 0;
+      document.getElementById("scoreText").innerText = "0";
+      document.getElementById("startScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.add("hidden");
+      document.getElementById("playScreen").classList.remove("hidden");
+      loadStep();
+    }
+
+    function loadStep() {
+      document.getElementById("feedbackText").innerText = "";
+      document.getElementById("hossamFace").innerText = "😊";
+      document.getElementById("progressFill").style.width = ((currentStep / totalSteps) * 100) + "%";
+
+      if (currentStep < stage1Data.length) {
+        const item = stage1Data[currentStep];
+        document.getElementById("stageLabel").innerText = "الْمَرْحَلَةُ ١: عَادَاتُ حُسَام";
+        document.getElementById("cardEmoji").innerText = item.emoji;
+        document.getElementById("cardText").innerText = item.text;
+        document.getElementById("stage1Controls").classList.remove("hidden");
+        document.getElementById("stage2Controls").classList.add("hidden");
+        toggleStage1Buttons(false);
+      } else if (currentStep < totalSteps) {
+        const qIndex = currentStep - stage1Data.length;
+        const item = stage2Data[qIndex];
+        document.getElementById("stageLabel").innerText = "الْمَرْحَلَةُ ٢: تَحَدِّي الْكَلِمَاتِ";
+        document.getElementById("cardEmoji").innerText = item.emoji;
+        document.getElementById("cardText").innerText = item.text;
+        document.getElementById("stage1Controls").classList.add("hidden");
+
+        const box = document.getElementById("stage2Controls");
+        box.innerHTML = "";
+        box.classList.remove("hidden");
+
+        item.options.forEach((opt, idx) => {
+          const btn = document.createElement("button");
+          btn.className = "btn-option";
+          btn.innerText = opt;
+          btn.onclick = () => answerStage2(idx, btn);
+          box.appendChild(btn);
+        });
+      } else {
+        showEndScreen();
+      }
+    }
+
+    function toggleStage1Buttons(disabled) {
+      const btns = document.querySelectorAll("#stage1Controls button");
+      btns.forEach(b => b.disabled = disabled);
+    }
+
+    function answerStage1(userChoice) {
+      toggleStage1Buttons(true);
+      const item = stage1Data[currentStep];
+      const isCorrect = (userChoice === item.good);
+      handleResult(isCorrect);
+    }
+
+    function answerStage2(selectedIdx, btnElement) {
+      const qIndex = currentStep - stage1Data.length;
+      const item = stage2Data[qIndex];
+      const allBtns = document.querySelectorAll("#stage2Controls button");
+      allBtns.forEach(b => b.disabled = true);
+
+      const isCorrect = (selectedIdx === item.correct);
+      if (isCorrect) {
+        btnElement.classList.add("correct");
+      } else {
+        btnElement.classList.add("wrong");
+        allBtns[item.correct].classList.add("correct");
+      }
+      handleResult(isCorrect);
+    }
+
+    function handleResult(isCorrect) {
+      const face = document.getElementById("hossamFace");
+      const fb = document.getElementById("feedbackText");
+
+      if (isCorrect) {
+        score++;
+        document.getElementById("scoreText").innerText = score;
+        face.innerText = "🤩";
+        fb.style.color = "#06a77d";
+        fb.innerText = "مُمْتَاز! إِجَابَةٌ صَحِيحَةٌ 🌟";
+      } else {
+        face.innerText = "😢";
+        fb.style.color = "#d90429";
+        fb.innerText = "حَاوِلْ فِي الْمَرَّةِ الْقَادِمَةِ! 💪";
+      }
+
+      face.classList.remove("bounce");
+      void face.offsetWidth;
+      face.classList.add("bounce");
+
+      setTimeout(() => {
+        currentStep++;
+        loadStep();
+      }, 1200);
+    }
+
+    function showEndScreen() {
+      document.getElementById("playScreen").classList.add("hidden");
+      document.getElementById("endScreen").classList.remove("hidden");
+      document.getElementById("endMessage").innerText =
+        `حَصَلْتَ عَلَى ${score} نَجْمَةً مِنْ ${totalSteps}! أَنْتَ صَدِيقٌ ذَكِيٌّ وَتُحَافِظُ عَلَى صِحَّتِكَ مِثْلَ حُسَام! 🎉`;
+      launchConfetti();
+    }
+
+    function launchConfetti() {
+      const box = document.getElementById("gameBox");
+      const icons = ["⭐", "🎉", "🎈", "✨", "🏆"];
+      for (let i = 0; i < 18; i++) {
+        const el = document.createElement("span");
+        el.className = "confetti";
+        el.innerText = icons[i % icons.length];
+        el.style.left = Math.random() * 90 + "%";
+        el.style.animationDelay = (Math.random() * 0.8) + "s";
+        box.appendChild(el);
+        setTimeout(() => el.remove(), 3000);
+      }
+    }
+  </script>
+</body>
+</html>
